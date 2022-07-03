@@ -1,3 +1,4 @@
+using DotNetConverter.Services;
 using DotNetConverter.Services.Queues;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,6 +8,7 @@ builder.Services.AddControllers();
 builder.Services.AddLogging();
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<IVideoQueue, VideoQueue>();
+builder.Services.AddHostedService<QueuedVideoService>();
 
 var app = builder.Build();
 
