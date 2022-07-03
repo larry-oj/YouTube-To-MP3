@@ -23,9 +23,16 @@ public class VideoQueue : IVideoQueue
         this._signal = new SemaphoreSlim(0);
     }
 
-    public async Task QueueWorkItemAsync(CancellationToken cancellationToken, string? url, string? callbackUrl)
+    public async Task QueueWorkItemAsync(CancellationToken cancellationToken, string? id, string? url, string? callbackUrl)
     {
         _logger.LogInformation("Verifying data");
+
+        if (id is null or "")
+        {
+            _logger.LogError("Id is null");
+            throw new ArgumentNullException("Id is null");
+        }
+        
         if (url is null or "")
         {
             _logger.LogError("Url is null");
@@ -52,6 +59,7 @@ public class VideoQueue : IVideoQueue
         if (!cancellationToken.IsCancellationRequested)
         {
             var workItem = new WorkItem {
+                Id = id,
                 StreamManifest = streamManifest,
                 CallbackUrl = callbackUrl
             };
