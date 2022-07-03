@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetConverter", "DotNetConverter.csproj", "{FDC15625-8CB4-4357-BBA6-DB6FF8103951}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FDC15625-8CB4-4357-BBA6-DB6FF8103951}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FDC15625-8CB4-4357-BBA6-DB6FF8103951}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FDC15625-8CB4-4357-BBA6-DB6FF8103951}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FDC15625-8CB4-4357-BBA6-DB6FF8103951}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
