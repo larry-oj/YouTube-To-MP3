@@ -47,14 +47,22 @@ public class VideoQueue : IVideoQueue
         
         var ytClient = new YoutubeClient(_clientFactory.CreateClient());
         
-        _logger.LogInformation("Verifying video availability");
+        _logger.LogInformation("Verifying video");
+        
+        var video = await ytClient.Videos.GetAsync(url, cancellationToken);
+        if (video.Duration!.Value.TotalMinutes > 10)
+        {
+            _logger.LogError("Video can't be longer than 10 minutes");
+            throw new ArgumentException("Video can't be longer than 10 minutes");
+        }
+        
         var streamManifest = await ytClient.Videos.Streams.GetManifestAsync(url, cancellationToken);
         if (streamManifest == null)
         {
             _logger.LogError("Video is unavailable");
-            throw new ArgumentNullException("Video is unavailable");
+            throw new ArgumentException("Video is unavailable");
         }
-        
+
         _logger.LogInformation("Queueing work item");
         if (!cancellationToken.IsCancellationRequested)
         {

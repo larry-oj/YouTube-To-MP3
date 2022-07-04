@@ -41,7 +41,7 @@ public class QueuedVideoService : BackgroundService
             }
             catch (Exception ex)
             {
-                _logger.LogError("Error executing work item");
+                _logger.LogError(ex, "Error executing work item");
                 await HandleError(ex);
             }
         }
@@ -74,7 +74,7 @@ public class QueuedVideoService : BackgroundService
         );
 
         _logger.LogInformation($"Conversion of {workItem.Id} successful");
-        
+
         // TODO: callback to url
     }
 
