@@ -7,22 +7,23 @@ namespace DotNetConverter.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class ConversionController : ControllerBase
+public class ConverterController : ControllerBase
 {
     private readonly IVideoQueue _queue;
-    private readonly ILogger<ConversionController> _logger;
+    private readonly ILogger<ConverterController> _logger;
 
-    public ConversionController(IVideoQueue queue, 
-        ILogger<ConversionController> logger)
+    public ConverterController(IVideoQueue queue, 
+        ILogger<ConverterController> logger)
     {
         _queue = queue;
         _logger = logger;
     }
 
     [HttpPost]
+    [Route("[action]")]
     public async Task<IActionResult> QueueVideo([FromBody] QueueVideoRequest request, CancellationToken token)
     {
-        if (!ModelState.IsValid)
+        if (!ModelState.IsValid)    
             return BadRequest(ModelState);
 
         try
