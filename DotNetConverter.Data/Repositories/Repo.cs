@@ -3,14 +3,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DotNetConverter.Data.Repositories;
 
-public class Repo<T> : IRepo<T> where T : class, IStringIdEntity
+public class Repo<T> : IDisposable, IRepo<T> where T : class, IStringIdEntity
 {
     private readonly ConverterDbContext _context;
     private readonly DbSet<T> _entities;
 
-    public Repo(ConverterDbContext context)
+    public Repo(IDbContextFactory<ConverterDbContext> contextFactory)
     {
-        _context = context;
+        _context = contextFactory.CreateDbContext();
         _entities = _context.Set<T>();
     }
 
@@ -45,5 +45,10 @@ public class Repo<T> : IRepo<T> where T : class, IStringIdEntity
     public async Task SaveAsync()
     {
         await _context.SaveChangesAsync();
+    }
+
+    public void Dispose()
+    {
+        _context.Dispose();
     }
 }
