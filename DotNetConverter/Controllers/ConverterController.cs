@@ -26,9 +26,11 @@ public class ConverterController : ControllerBase
         if (!ModelState.IsValid)    
             return BadRequest(ModelState);
 
+        string id;
+        
         try
         {
-            await _queue.QueueWorkItemAsync(token, request.Id, request.Url, request.CallbackUrl);
+            id = await _queue.QueueWorkItemAsync(token, request.Url, request.WithCallback, request.CallbackUrl);
         }
         catch (Exception ex)
         {
@@ -44,6 +46,6 @@ public class ConverterController : ControllerBase
             }
         }
 
-        return Ok();
+        return Ok(new QueueVideoResponse(id));
     }
 }
