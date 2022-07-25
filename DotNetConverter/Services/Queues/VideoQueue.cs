@@ -41,12 +41,6 @@ public class VideoQueue : IVideoQueue
             throw new ArgumentNullException("Url is null");
         }
 
-        if (callbackUrl is null or "")
-        {
-            _logger.LogError("Callback Url is null");
-            throw new ArgumentNullException("Callback Url is null");
-        }
-        
         var ytClient = new YoutubeClient(_clientFactory.CreateClient());
         
         _logger.LogInformation("Verifying video");
@@ -65,7 +59,7 @@ public class VideoQueue : IVideoQueue
             throw new ArgumentException("Video is unavailable");
         }
         
-        if (!cancellationToken.IsCancellationRequested) return "";
+        if (cancellationToken.IsCancellationRequested) return "";
         
         _logger.LogInformation("Queueing work item");
         string id;
