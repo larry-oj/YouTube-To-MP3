@@ -1,5 +1,8 @@
+using DotNetConverter.Data;
+using DotNetConverter.Data.Repositories;
 using DotNetConverter.Services;
 using DotNetConverter.Services.Queues;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +12,11 @@ builder.Services.AddLogging();
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<IVideoQueue, VideoQueue>();
 builder.Services.AddHostedService<QueuedVideoService>();
+builder.Services.AddDbContextFactory<ConverterDbContext>(ops =>
+{
+    ops.UseNpgsql(builder.Configuration.GetSection("Database:ConnectionString").Value ?? throw new ArgumentException());
+});
+builder.Services.AddTransient(typeof(IRepo<>), typeof(Repo<>));
 
 var app = builder.Build();
 
