@@ -1,5 +1,9 @@
-﻿using DotNetConverter.Models;
+﻿using DotNetConverter.Data;
+using DotNetConverter.Data.Models;
+using DotNetConverter.Data.Repositories;
+using DotNetConverter.Models;
 using DotNetConverter.Services.Queues;
+using Microsoft.EntityFrameworkCore;
 using YoutubeExplode;
 using YoutubeExplode.Converter;
 using YoutubeExplode.Videos.Streams;
@@ -11,6 +15,7 @@ public class QueuedVideoService : BackgroundService
     private readonly IConfiguration _configuration;
     private readonly ILogger<QueuedVideoService> _logger;
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly IDbContextFactory<ConverterDbContext> _contextFactory;
 
     private readonly IVideoQueue _queue;
     public IVideoQueue Queue => _queue;
@@ -19,12 +24,14 @@ public class QueuedVideoService : BackgroundService
     public QueuedVideoService(IVideoQueue queue, 
         ILogger<QueuedVideoService> logger,
         IConfiguration configuration,
-        IHttpClientFactory httpClientFactory)
+        IHttpClientFactory httpClientFactory,
+        IDbContextFactory<ConverterDbContext> contextFactory)
     {
         _queue = queue;
         _logger = logger;
         _configuration = configuration;
         _httpClientFactory = httpClientFactory;
+        _contextFactory = contextFactory;
     }
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -75,6 +82,17 @@ public class QueuedVideoService : BackgroundService
 
         _logger.LogInformation($"Conversion of {workItem.Id} successful");
 
+        using (var repo = new Repo<QueuedItem>(_contextFactory))
+        {
+            var record = repo.Get(workItem.Id);
+            if (record is not null)
+            {
+                record.IsFinished = true;
+                repo.Update(record);
+                await repo.SaveAsync();
+            }
+        }
+        
         // TODO: callback to url
     }
 
