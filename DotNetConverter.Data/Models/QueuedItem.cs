@@ -7,11 +7,9 @@ public class QueuedItem : IStringIdEntity
     [Key] public string Id { get; set; }
     public bool IsFinished { get; set; } = false;
     public DateTime? TimeFinished { get; set; }
-    public string Data { get; set; }
 
-    public QueuedItem(string id, string data)
+    public QueuedItem(string id)
     {
         Id = id;
-        Data = data;
     }
 }
