@@ -42,6 +42,11 @@ public class Repo<T> : IDisposable, IRepo<T> where T : class, IStringIdEntity
         _entities.Remove(entity);
     }
 
+    public void Save()
+    {
+        _context.SaveChanges();
+    }
+    
     public async Task SaveAsync()
     {
         await _context.SaveChangesAsync();
