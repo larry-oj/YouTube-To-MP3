@@ -4,7 +4,8 @@ namespace DotNetConverter.Services.Queues;
 
 public interface IVideoQueue
 {
-    Task QueueWorkItemAsync(CancellationToken cancellationToken, string? id, string? url, string? callbackUrl);
+    Task<string> QueueWorkItemAsync(CancellationToken cancellationToken, string? url, bool withCallback,
+        string? callbackUrl);
 
     Task<WorkItem> DequeueAsync(CancellationToken cancellationToken);
 }
