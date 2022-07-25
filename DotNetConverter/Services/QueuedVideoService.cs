@@ -88,7 +88,7 @@ public class QueuedVideoService : BackgroundService
             if (record is not null)
             {
                 record.IsFinished = true;
-                record.TimeFinished = DateTime.Now;
+                record.TimeFinished = DateTime.UtcNow;
                 repo.Update(record);
                 await repo.SaveAsync();
             }
