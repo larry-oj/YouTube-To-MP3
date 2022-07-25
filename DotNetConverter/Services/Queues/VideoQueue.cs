@@ -76,16 +76,19 @@ public class VideoQueue : IVideoQueue
                 id = new string(Enumerable.Repeat("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 10)
                     .Select(s => s[new Random().Next(s.Length)]).ToArray());
             } while (repo.Get(id) != null);
+            
+            var workItem = new WorkItem {
+                Id = id,
+                StreamManifest = streamManifest,
+                WithCallback = withCallback,
+                CallbackUrl = callbackUrl
+            };
+
+            _workItems.Enqueue(workItem);
+            
+            repo.Insert(new QueuedItem(id));
+            await repo.SaveAsync();
         }
-
-        var workItem = new WorkItem {
-            Id = id,
-            StreamManifest = streamManifest,
-            WithCallback = withCallback,
-            CallbackUrl = callbackUrl
-        };
-
-        _workItems.Enqueue(workItem);
         
         // Release the semaphore so that the background thread can start.
         _signal.Release();
