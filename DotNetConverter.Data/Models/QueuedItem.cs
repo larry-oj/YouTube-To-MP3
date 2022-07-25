@@ -2,7 +2,7 @@
 
 namespace DotNetConverter.Data.Models;
 
-public class QueuedItem
+public class QueuedItem : IStringIdEntity
 {
     [Key] public string Id { get; set; }
     public bool IsFinished { get; set; } = false;
