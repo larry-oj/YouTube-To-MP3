@@ -12,6 +12,7 @@ builder.Services.AddLogging();
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<IVideoQueue, VideoQueue>();
 builder.Services.AddHostedService<QueuedVideoService>();
+builder.Services.AddHostedService<TimedCleanupService>();
 builder.Services.AddDbContextFactory<ConverterDbContext>(ops =>
 {
     ops.UseNpgsql(builder.Configuration.GetSection("Database:ConnectionString").Value ?? throw new ArgumentException());
