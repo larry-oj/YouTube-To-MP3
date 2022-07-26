@@ -8,6 +8,7 @@ public class QueuedItem : IStringIdEntity
     [Required] public string Name { get; set; }
     public bool IsFinished { get; set; } = false;
     public DateTime? TimeFinished { get; set; }
+    public bool IsFailed { get; set; } = false;
 
     public QueuedItem(string id, string name)
     {
