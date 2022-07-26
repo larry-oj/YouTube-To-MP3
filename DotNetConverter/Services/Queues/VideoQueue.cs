@@ -51,7 +51,7 @@ public class VideoQueue : IVideoQueue
             _logger.LogError("Video can't be longer than 10 minutes");
             throw new ArgumentException("Video can't be longer than 10 minutes");
         }
-        
+
         var streamManifest = await ytClient.Videos.Streams.GetManifestAsync(url, cancellationToken);
         if (streamManifest == null)
         {
@@ -73,6 +73,7 @@ public class VideoQueue : IVideoQueue
             
             var workItem = new WorkItem {
                 Id = id,
+                Name = video.Title,
                 StreamManifest = streamManifest,
                 WithCallback = withCallback,
                 CallbackUrl = callbackUrl
@@ -80,7 +81,7 @@ public class VideoQueue : IVideoQueue
 
             _workItems.Enqueue(workItem);
             
-            repo.Insert(new QueuedItem(id));
+            repo.Insert(new QueuedItem(id, video.Title));
             await repo.SaveAsync();
         }
         
