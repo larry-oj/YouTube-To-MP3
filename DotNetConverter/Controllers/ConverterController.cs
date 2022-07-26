@@ -1,4 +1,6 @@
-﻿using DotNetConverter.Models;
+﻿using DotNetConverter.Data.Models;
+using DotNetConverter.Data.Repositories;
+using DotNetConverter.Models;
 using DotNetConverter.Services;
 using DotNetConverter.Services.Queues;
 using Microsoft.AspNetCore.Mvc;
@@ -11,16 +13,19 @@ public class ConverterController : ControllerBase
 {
     private readonly IVideoQueue _queue;
     private readonly ILogger<ConverterController> _logger;
+    private readonly IRepo<QueuedItem> _repo;
 
     public ConverterController(IVideoQueue queue, 
-        ILogger<ConverterController> logger)
+        ILogger<ConverterController> logger,
+        IRepo<QueuedItem> repo)
     {
         _queue = queue;
         _logger = logger;
+        _repo = repo;
     }
 
     [HttpPost]
-    [Route("[action]")]
+    [Route("videos")]
     public async Task<IActionResult> QueueVideo([FromBody] QueueVideoRequest request, CancellationToken token)
     {
         if (!ModelState.IsValid)    
@@ -47,5 +52,27 @@ public class ConverterController : ControllerBase
         }
 
         return Ok(new QueueVideoResponse(id));
+    }
+
+    [HttpGet]
+    [Route("videos/{id}/status")]
+    public async Task<IActionResult> CheckVideo(string id)
+    {
+        if (!ModelState.IsValid)    
+            return BadRequest(ModelState);
+
+        try
+        {
+            var record = _repo.Get(id);
+            if (record is null) 
+                return BadRequest("No video found");
+            
+            return Ok(new CheckVideoResponse(id, record.IsFailed, record.IsFinished));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Returning server error response");
+            return StatusCode(500, "Sorry, something went wrong");
+        }
     }
 }
