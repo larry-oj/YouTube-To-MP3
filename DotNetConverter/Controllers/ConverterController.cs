@@ -1,9 +1,9 @@
 ﻿using DotNetConverter.Data.Models;
 using DotNetConverter.Data.Repositories;
 using DotNetConverter.Models;
-using DotNetConverter.Services;
 using DotNetConverter.Services.Queues;
 using Microsoft.AspNetCore.Mvc;
+using System.Net.Http.Headers;
 
 namespace DotNetConverter.Controllers;
 
@@ -14,14 +14,17 @@ public class ConverterController : ControllerBase
     private readonly IVideoQueue _queue;
     private readonly ILogger<ConverterController> _logger;
     private readonly IRepo<QueuedItem> _repo;
+    private readonly IConfiguration _configuration;
 
     public ConverterController(IVideoQueue queue, 
         ILogger<ConverterController> logger,
-        IRepo<QueuedItem> repo)
+        IRepo<QueuedItem> repo,
+        IConfiguration configuration)
     {
         _queue = queue;
         _logger = logger;
         _repo = repo;
+        _configuration = configuration;
     }
 
     [HttpPost]
@@ -56,7 +59,7 @@ public class ConverterController : ControllerBase
 
     [HttpGet]
     [Route("videos/{id}/status")]
-    public async Task<IActionResult> CheckVideo(string id)
+    public IActionResult CheckVideo(string id)
     {
         if (!ModelState.IsValid)    
             return BadRequest(ModelState);
