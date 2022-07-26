@@ -78,4 +78,37 @@ public class ConverterController : ControllerBase
             return StatusCode(500, "Sorry, something went wrong");
         }
     }
+
+    [HttpGet]
+    [Route("videos/{id}")]
+    public IActionResult GetFile(string id)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        try
+        {
+            var record = _repo.Get(id);
+            if (record is null)
+            {
+                return BadRequest("Video is not found in queue");
+            }
+            if (!record.IsFinished || record.IsFailed)
+            {
+                return BadRequest("Video has failed to convert or has not been yet converted");
+            }
+        
+            var filepath = Path.Combine(_configuration.GetSection("TempDir").Value!, id + ".mp3");
+            filepath = Path.Combine(Directory.GetCurrentDirectory(), filepath);
+            var validName = Path.GetInvalidFileNameChars()
+                .Aggregate(record.Name, (current, @char) => current.Replace(@char, '-'));
+
+            return PhysicalFile(filepath, "audio/mpeg", validName + ".mp3");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Returning server error response");
+            return StatusCode(500, "Sorry, something went wrong");
+        }
+    }
 }
