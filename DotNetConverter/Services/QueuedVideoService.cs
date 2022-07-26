@@ -5,6 +5,7 @@ using DotNetConverter.Models;
 using DotNetConverter.Services.Queues;
 using Microsoft.EntityFrameworkCore;
 using System.Net.Http.Headers;
+using System.Text.Json;
 using YoutubeExplode;
 using YoutubeExplode.Converter;
 using YoutubeExplode.Videos.Streams;
@@ -50,7 +51,7 @@ public class QueuedVideoService : BackgroundService
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error executing work item");
-                await HandleError(ex);
+                await HandleError(ex, workItem);
             }
         }
         
@@ -96,27 +97,57 @@ public class QueuedVideoService : BackgroundService
         }
         
         if (!workItem.WithCallback) return;
-        using (var multipartFormContent = new MultipartFormDataContent())
+        try
         {
-            //Load the file and set the file's Content-Type header
-            var fileStreamContent = new StreamContent(File.OpenRead(filePath));
-            fileStreamContent.Headers.ContentType = new MediaTypeHeaderValue("audio/mpeg");
+            using (var multipartFormContent = new MultipartFormDataContent())
+            {
+                //Load the file and set the file's Content-Type header
+                var fileStreamContent = new StreamContent(File.OpenRead(filePath));
+                fileStreamContent.Headers.ContentType = new MediaTypeHeaderValue("audio/mpeg");
 
-            var validName = Path.GetInvalidFileNameChars()
-                .Aggregate(workItem.Name, (current, @char) => current.Replace(@char, '-'));
+                var validName = Path.GetInvalidFileNameChars()
+                    .Aggregate(workItem.Name, (current, @char) => current.Replace(@char, '-'));
 
-            //Add the file
-            multipartFormContent.Add(fileStreamContent, name: "file", fileName: validName + ".mp3");
+                //Add the file
+                multipartFormContent.Add(fileStreamContent, name: "file", fileName: validName + ".mp3");
 
-            using var client = _httpClientFactory.CreateClient();
-            var response = await client.PostAsync(workItem.CallbackUrl, multipartFormContent);
-            response.EnsureSuccessStatusCode();
+                using var client = _httpClientFactory.CreateClient();
+                var response = await client.PostAsync(workItem.CallbackUrl, multipartFormContent);
+                response.EnsureSuccessStatusCode();
+            }
+        }
+        catch (Exception e)
+        {
+            throw new HttpRequestException();
         }
     }
 
-    private async Task HandleError(Exception ex)
+    private async Task HandleError(Exception ex, WorkItem workItem)
     {
-        // TODO: callback to callback url
-        throw new NotImplementedException();
+        if (ex is HttpRequestException) return;
+
+        using (var repo = new Repo<QueuedItem>(_contextFactory))
+        {
+            var record = repo.GetAll().FirstOrDefault(i => i.Id == workItem.Id)!;
+            record.IsFailed = true;
+            record.TimeFinished = DateTime.UtcNow;
+            repo.Update(record);
+            await repo.SaveAsync();
+        }
+        
+        if (!workItem.WithCallback) return;
+
+        var error = new ErrorMessage(workItem.Id, "There was an internal error converting your track");
+        
+        using var content = new StringContent(JsonSerializer.Serialize(error));
+        using var client = _httpClientFactory.CreateClient();
+        try
+        {
+            var response = await client.PostAsync(workItem.CallbackUrl, content);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError("Failed sending error to callback url");
+        }
     }
 }

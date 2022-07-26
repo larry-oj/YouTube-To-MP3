@@ -34,7 +34,7 @@ public class TimedCleanupService : IHostedService, IDisposable
     {
         using (var repo = new Repo<QueuedItem>(_contextFactory))
         {
-            var items = repo.GetAll().Where(i => i.IsFinished == true);
+            var items = repo.GetAll().Where(i => i.IsFinished == true || i.IsFailed == true);
             foreach (var item in items)
             {
                 if (DateTime.UtcNow.Subtract((DateTime)item.TimeFinished!).TotalMinutes < 10) continue;
