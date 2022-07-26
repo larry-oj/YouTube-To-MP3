@@ -4,6 +4,7 @@ using DotNetConverter.Data.Repositories;
 using DotNetConverter.Models;
 using DotNetConverter.Services.Queues;
 using Microsoft.EntityFrameworkCore;
+using System.Net.Http.Headers;
 using YoutubeExplode;
 using YoutubeExplode.Converter;
 using YoutubeExplode.Videos.Streams;
@@ -94,7 +95,23 @@ public class QueuedVideoService : BackgroundService
             }
         }
         
-        // TODO: callback to url
+        if (!workItem.WithCallback) return;
+        using (var multipartFormContent = new MultipartFormDataContent())
+        {
+            //Load the file and set the file's Content-Type header
+            var fileStreamContent = new StreamContent(File.OpenRead(filePath));
+            fileStreamContent.Headers.ContentType = new MediaTypeHeaderValue("audio/mpeg");
+
+            var validName = Path.GetInvalidFileNameChars()
+                .Aggregate(workItem.Name, (current, @char) => current.Replace(@char, '-'));
+
+            //Add the file
+            multipartFormContent.Add(fileStreamContent, name: "file", fileName: validName + ".mp3");
+
+            using var client = _httpClientFactory.CreateClient();
+            var response = await client.PostAsync(workItem.CallbackUrl, multipartFormContent);
+            response.EnsureSuccessStatusCode();
+        }
     }
 
     private async Task HandleError(Exception ex)
