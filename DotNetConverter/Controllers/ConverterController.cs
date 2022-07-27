@@ -98,7 +98,7 @@ public class ConverterController : ControllerBase
                 return BadRequest("Video has failed to convert or has not been yet converted");
             }
         
-            var filepath = Path.Combine(_configuration.GetSection("TempDir").Value!, id + ".mp3");
+            var filepath = Path.Combine(_configuration.GetSection("Converter:TempDir").Value!, id + ".mp3");
             filepath = Path.Combine(Directory.GetCurrentDirectory(), filepath);
             var validName = Path.GetInvalidFileNameChars()
                 .Aggregate(record.Name, (current, @char) => current.Replace(@char, '-'));

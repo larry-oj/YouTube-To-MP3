@@ -37,8 +37,10 @@ public class TimedCleanupService : IHostedService, IDisposable
             var items = repo.GetAll().Where(i => i.IsFinished == true || i.IsFailed == true);
             foreach (var item in items)
             {
-                if (DateTime.UtcNow.Subtract((DateTime)item.TimeFinished!).TotalMinutes < 10) continue;
-                File.Delete(Directory.GetCurrentDirectory() + $"\\{_configuration.GetSection("TempDir").Value}\\{item.Id}.mp3");
+                _logger.LogInformation($"Cleaning {item.Id}");
+                if (!int.TryParse(_configuration.GetSection("Converter:MaxAgeMinutes").Value, out var maxAge)) maxAge = 10;
+                if (DateTime.UtcNow.Subtract((DateTime)item.TimeFinished!).TotalMinutes < maxAge) continue;
+                File.Delete($"{_configuration.GetSection("Converter:TempDir").Value}\\{item.Id}.mp3");
                 repo.Delete(item);
             }
             repo.Save();
