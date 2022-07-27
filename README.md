@@ -2,6 +2,16 @@
 # DotNetConverter
 
 A simple, easy to use youtube-to-mp3 converter. Utilises YouTubeExplode library and ffmpeg. Additionally configured for nginx proxy.
+
+
+## Table of Contents
+
+- [Features](#features)
+- [Webhooking](#webhooking)
+- [API Reference](#api-reference)
+    * [Queue video for conversion](#queue-video-for-conversion)
+    * [Get item status](#get-item-status)
+    * [Get mp3](#get-mp3)
 ## Features
 
 - Creates a .mp3 file from your YouTube link
