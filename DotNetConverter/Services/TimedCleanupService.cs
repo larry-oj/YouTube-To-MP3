@@ -40,7 +40,7 @@ public class TimedCleanupService : IHostedService, IDisposable
                 _logger.LogInformation($"Cleaning {item.Id}");
                 if (!int.TryParse(_configuration.GetSection("Converter:MaxAgeMinutes").Value, out var maxAge)) maxAge = 10;
                 if (DateTime.UtcNow.Subtract((DateTime)item.TimeFinished!).TotalMinutes < maxAge) continue;
-                File.Delete($"{_configuration.GetSection("Converter:TempDir").Value}\\{item.Id}.mp3");
+                File.Delete($"{_configuration.GetSection("Converter:TempDir").Value}/{item.Id}.mp3"); // fun fact: linux is sensitive to / and \, somewhy
                 repo.Delete(item);
             }
             repo.Save();
