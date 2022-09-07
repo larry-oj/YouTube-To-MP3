@@ -5,6 +5,7 @@ using DotNetConverter.Data.Repositories;
 using DotNetConverter.Models;
 using Microsoft.EntityFrameworkCore;
 using YoutubeExplode;
+using YoutubeExplode.Videos.Streams;
 
 namespace DotNetConverter.Services.Queues;
 
@@ -52,7 +53,17 @@ public class VideoQueue : IVideoQueue
             throw new ArgumentException("Video can't be longer than 10 minutes");
         }
 
-        var streamManifest = await ytClient.Videos.Streams.GetManifestAsync(url, cancellationToken);
+        StreamManifest? streamManifest = null;
+        try
+        {
+            streamManifest = await ytClient.Videos.Streams.GetManifestAsync(url, cancellationToken);
+        }
+        catch
+        {
+            _logger.LogError("Video is restricted");
+            throw new ArgumentException("Sorry! This track is restricted (likely cause: age restriction)");
+        }
+        
         if (streamManifest == null)
         {
             _logger.LogError("Video is unavailable");

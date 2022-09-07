@@ -108,6 +108,11 @@ public class ConverterController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Returning server error response");
+            if (ex is ArgumentException)
+            {
+                return StatusCode(500, ex.Message);
+            }
+            
             return StatusCode(500, "Sorry, something went wrong");
         }
     }

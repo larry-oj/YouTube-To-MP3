@@ -37,9 +37,9 @@ public class TimedCleanupService : IHostedService, IDisposable
             var items = repo.GetAll().Where(i => i.IsFinished == true || i.IsFailed == true);
             foreach (var item in items)
             {
-                _logger.LogInformation($"Cleaning {item.Id}");
                 if (!int.TryParse(_configuration.GetSection("Converter:MaxAgeMinutes").Value, out var maxAge)) maxAge = 10;
                 if (DateTime.UtcNow.Subtract((DateTime)item.TimeFinished!).TotalMinutes < maxAge) continue;
+                _logger.LogInformation($"Cleaning {item.Id}");
                 File.Delete($"{_configuration.GetSection("Converter:TempDir").Value}/{item.Id}.mp3"); // fun fact: linux is sensitive to / and \, somewhy
                 repo.Delete(item);
             }
