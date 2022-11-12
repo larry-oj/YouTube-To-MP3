@@ -66,6 +66,9 @@ public class QueuedVideoService : BackgroundService
         var audioStreamInfo = workItem.StreamManifest!.GetAudioOnlyStreams().GetWithHighestBitrate();
 
         var tmpPath = _configuration.GetSection("Converter:TempDir").Value;
+        if (!Directory.Exists(tmpPath))
+            Directory.CreateDirectory(tmpPath!);
+
         var ffmpegPath = _configuration.GetSection("Ffmpeg:bin").Value;
         
         const string containerName = "mp3";

@@ -25,6 +25,10 @@ public class TimedCleanupService : IHostedService, IDisposable
     {
         _logger.LogInformation("Timed cleanup service running");
 
+        var directory = _configuration.GetSection("Converter:TempDir").Value;
+        if(!Directory.Exists(directory))
+            Directory.CreateDirectory(directory!);
+
         _timer = new Timer(Clean, null, TimeSpan.Zero, TimeSpan.FromMinutes(1));
         
         return Task.CompletedTask;
