@@ -10,7 +10,7 @@ public class ConverterDbContext : DbContext
     public ConverterDbContext(DbContextOptions<ConverterDbContext> options)
         : base(options)
     {
-        // ...
+        Database.EnsureCreated();
     }
     
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
