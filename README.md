@@ -7,6 +7,7 @@ A simple, easy to use youtube-to-mp3 converter. Utilises YouTubeExplode library 
 ## Table of Contents
 
 - [Features](#features)
+- [Setup](#setup)
 - [Webhooking](#webhooking)
 - [API Reference](#api-reference)
     * [Queue video for conversion](#queue-video-for-conversion)
@@ -19,6 +20,12 @@ A simple, easy to use youtube-to-mp3 converter. Utilises YouTubeExplode library 
 - Supports parallel conversion of multiple links
 - Can act as a WebHook
 - Automatic cleanup of finished files
+
+## Setup
+- Requires FFMpeg binaries path in `appsettings.json`.
+- Requires PSQL Database connection string in `appsettings.json`
+- Requires temporary directory specified in `appsettings.json` (it will store generated MP3 files)
+- (Optional) Configure MP3 file local lifetime (minutes) in `appsettings.json` (default value - 10 minutes)
 
 ## Webhooking
 
