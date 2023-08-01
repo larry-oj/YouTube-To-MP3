@@ -58,9 +58,9 @@ public class VideoQueue : IVideoQueue
         {
             streamManifest = await ytClient.Videos.Streams.GetManifestAsync(url, cancellationToken);
         }
-        catch
+        catch (Exception ex)
         {
-            _logger.LogError("Video is restricted");
+            _logger.LogError(ex, "Error while getting stream manifest");
             throw new ArgumentException("Sorry! This track is restricted (likely cause: age restriction)");
         }
         
